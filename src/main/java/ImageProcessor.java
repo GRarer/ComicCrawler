@@ -16,9 +16,7 @@ public class ImageProcessor {
         this.destinationFolder = directory;
         this.counter = 0;
 
-        File folder = new File(destinationFolder);
-        folder.mkdirs();
-
+        new File(destinationFolder).mkdirs();
     }
 
     public ImageProcessor() {
@@ -49,8 +47,6 @@ public class ImageProcessor {
         writeChannel.close();
     }
 
-
-
     private String getFileExtension(URL url) {
         String urlString = url.toString();
 
@@ -59,6 +55,5 @@ public class ImageProcessor {
         }
 
         return urlString.substring(urlString.lastIndexOf('.'));
-
     }
 }

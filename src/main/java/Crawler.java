@@ -18,8 +18,6 @@ public class Crawler {
 
     private static final int timeoutMillis = 10000; //timeout when fetching html
 
-    public static boolean debugMode = false;
-
     private URL startURL;
     //url substring used to identify which image is the comic, usually "/comics/"
     private String comicSubstring;
@@ -28,9 +26,6 @@ public class Crawler {
 
 
     public Crawler(URL startURL, String comicSubstring) {
-
-        //TODO find correct first page when startURL is a homepage
-
         this.startURL = startURL;
         this.comicSubstring = comicSubstring;
         this.imageProcessor = new ImageProcessor();
@@ -126,21 +121,11 @@ public class Crawler {
         Elements media = doc.select("[src]");
         String imageSrc = null;
 
-        if(debugMode) {
-            System.out.println("Page media:");
-            for (Element element : media) {
-                System.out.println(element.attr("abs:src"));
-                System.out.println();
-            }
-        }
+
 
         for (Element element : media) {
             if (element.attr("abs:src").contains(comicSubstring)) {
                 imageSrc = element.attr("abs:src");
-
-                if(debugMode) {
-                    System.out.println("Found image url: " + imageSrc);
-                }
 
                 break;
             }
@@ -162,16 +147,6 @@ public class Crawler {
         //find link to next page
         Elements links = doc.select("a[href]");
         String nextURLString = "";
-
-        if(debugMode) {
-            System.out.println("Links:");
-            for(Element link : links) {
-                System.out.println("link: "+ link.attr("abs:href"));
-                System.out.println("rel: " + link.attr("rel"));
-                System.out.println("Text: " + link.text());
-                System.out.println();
-            }
-        }
 
         for (Element link : links) {
             if(link.attr("rel").equals("next")) {
@@ -209,7 +184,5 @@ public class Crawler {
             System.out.println("Malformed 'next' link URL. Exiting crawler loop.");
             return null;
         }
-
-
     }
 }
