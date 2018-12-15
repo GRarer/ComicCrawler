@@ -5,8 +5,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.awt.*;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,6 +13,7 @@ public class Crawler {
 
     private static final int timeoutMillis = 10000; //timeout when fetching html
 
+    public static boolean debugMode = false;
 
     private URL startURL;
     //url substring used to identify which image is the comic, usually "/comics/"
@@ -63,9 +62,22 @@ public class Crawler {
         Elements media = doc.select("[src]");
         String imageSrc = null;
 
+        if(debugMode) {
+            System.out.println("Page media:");
+            for (Element element : media) {
+                System.out.println(element.attr("abs:src"));
+                System.out.println();
+            }
+        }
+
         for (Element element : media) {
             if (element.attr("abs:src").contains(comicSubstring)) {
                 imageSrc = element.attr("abs:src");
+
+                if(debugMode) {
+                    System.out.println("Found image url: " + imageSrc);
+                }
+
                 break;
             }
         }
@@ -87,10 +99,31 @@ public class Crawler {
         Elements links = doc.select("a[href]");
         String nextURLString = "";
 
+        if(debugMode) {
+            System.out.println("Links:");
+            for(Element link : links) {
+                System.out.println("link: "+ link.attr("abs:href"));
+                System.out.println("rel: " + link.attr("rel"));
+                System.out.println("Text: " + link.text());
+                System.out.println();
+            }
+        }
+
         for (Element link : links) {
             if(link.attr("rel").equals("next")) {
                 nextURLString = link.attr("abs:href");
                 break;
+            }
+        }
+
+        //alternate link-finding for sites that don't implement the 'rel' attribute
+        if(nextURLString.equals("")) {
+            for (Element link : links) {
+                String linkText = link.text();
+                if(linkText.toLowerCase().contains("next")) {
+                    nextURLString = link.attr("abs:href");
+                    break;
+                }
             }
         }
 

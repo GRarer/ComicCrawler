@@ -1,9 +1,8 @@
-import javax.imageio.ImageIO;
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -30,51 +29,33 @@ public class ImageProcessor {
 
 
 
-    public  void saveImage(URL imgURL) throws IOException{
+    public  void saveImage(URL imgURL) throws IOException {
+
+        System.out.println("Saving image from: " + imgURL.toString());
 
         counter++;
 
-        //images are converted to PNG unless they are GIFs (since GIF is sometimes used for animated panels)
-        if (isGif(imgURL)) {
-            //TODO gifs
+        String path = destinationFolder + Integer.toString(counter) + getFileExtension(imgURL);
 
-            String path = destinationFolder + Integer.toString(counter) + ".gif";
+        URLConnection connection = imgURL.openConnection();
+        connection.setRequestProperty("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36");
+        ReadableByteChannel readChannel = Channels.newChannel(connection.getInputStream());
 
-            ReadableByteChannel readChannel = Channels.newChannel(imgURL.openStream());
-            FileOutputStream outputStream = new FileOutputStream(path);
-            FileChannel writeChannel = outputStream.getChannel();
-
-            writeChannel.transferFrom(readChannel,0,Long.MAX_VALUE);
-
-        } else {
-            RenderedImage img = ImageIO.read(imgURL);
-            String path = destinationFolder + Integer.toString(counter) + ".png";
-            File outputFile = new File(path);
-            outputFile.createNewFile(); //creates a file if it doesn't exist
-
-
-            try {
-                ImageIO.write(img, "png", outputFile);
-            } catch (IllegalArgumentException ex) {
-                System.out.println("Could not parse image data.");
-                return;
-            }
-
-        }
-
-
-
+        FileOutputStream outputStream = new FileOutputStream(path);
+        FileChannel writeChannel = outputStream.getChannel();
+        writeChannel.transferFrom(readChannel,0,Long.MAX_VALUE);
     }
 
 
-    private boolean isGif(URL url) {
+
+    private String getFileExtension(URL url) {
         String urlString = url.toString();
 
-        if (urlString.length()<4 || !urlString.contains(".")) {
-            return false;
+        if (!urlString.contains(".")) {
+            return null;
         }
 
-        String extension = urlString.substring(urlString.lastIndexOf('.'));
-        return extension.equals(".gif");
+        return urlString.substring(urlString.lastIndexOf('.'));
+
     }
 }
