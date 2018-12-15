@@ -6,6 +6,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.awt.*;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,16 +16,11 @@ public class Crawler {
     private static final int timeoutMillis = 10000; //timeout when fetching html
 
 
-    //the css rel attribute value used to identify the link to the next document
-    private String nextRel = "next";
-
     private URL startURL;
     //url substring used to identify which image is the comic, usually "/comics/"
     private String comicSubstring;
 
     private ImageProcessor imageProcessor;
-
-
 
 
     public Crawler(URL startURL, String comicSubstring) {
@@ -33,7 +29,7 @@ public class Crawler {
         this.imageProcessor = new ImageProcessor();
     }
 
-    public void startReading() throws IOException {
+    public void startReading() {
 
         URL nextURL = startURL;
 
@@ -49,11 +45,18 @@ public class Crawler {
      * @return the URL of the next page, or null if there is no next page
      * @throws IOException
      */
-    private URL readPage(URL url) throws IOException {
-        System.out.println("Reading from " + url.toString());
+    private URL readPage(URL url) {
+        System.out.println(url.toString());
 
         //get html document
-        Document doc = Jsoup.parse(url, timeoutMillis);
+        Document doc;
+        try {
+            doc = Jsoup.parse(url, timeoutMillis);
+        } catch (IOException ex) {
+            System.out.println("Page Not Found. Exiting crawler loop.");
+            return null;
+        }
+
 
 
         //find image
@@ -70,8 +73,13 @@ public class Crawler {
         if (imageSrc==null) {
             System.out.println("No valid comic found");
         } else {
-            System.out.println("Comic src: " + imageSrc);
-            imageProcessor.saveImage(new URL(imageSrc));
+            try {
+                imageProcessor.saveImage(new URL(imageSrc));
+            } catch (MalformedURLException ex) {
+                System.out.println("Malformed image URL. Skipping to next page.");
+            } catch (IOException ex) {
+                System.out.println("Failed to write image to file. Skipping to next page.");
+            }
         }
 
 
@@ -80,7 +88,7 @@ public class Crawler {
         String nextURLString = "";
 
         for (Element link : links) {
-            if(link.attr("rel").equals(nextRel)) {
+            if(link.attr("rel").equals("next")) {
                 nextURLString = link.attr("abs:href");
                 break;
             }
@@ -91,13 +99,20 @@ public class Crawler {
             return null;
         }
 
-        URL nextURL = new URL(nextURLString);
+        try {
+            URL nextURL = new URL(nextURLString);
 
-        if (nextURL.equals(url)) {
-            System.out.println("Next link leads back to the same page. Exiting crawler loop.");
+            if (nextURL.equals(url)) {
+                System.out.println("Next link leads back to the same page. Exiting crawler loop.");
+                return null;
+            }
+
+            return nextURL;
+        } catch (MalformedURLException e) {
+            System.out.println("Malformed 'next' link URL. Exiting crawler loop.");
             return null;
         }
 
-        return nextURL;
+
     }
 }

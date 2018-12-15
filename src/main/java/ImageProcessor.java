@@ -30,7 +30,7 @@ public class ImageProcessor {
 
 
 
-    public  void saveImage(URL imgURL) throws IOException {
+    public  void saveImage(URL imgURL) throws IOException{
 
         counter++;
 
@@ -52,7 +52,14 @@ public class ImageProcessor {
             File outputFile = new File(path);
             outputFile.createNewFile(); //creates a file if it doesn't exist
 
-            ImageIO.write(img, "png", outputFile);
+
+            try {
+                ImageIO.write(img, "png", outputFile);
+            } catch (IllegalArgumentException ex) {
+                System.out.println("Could not parse image data.");
+                return;
+            }
+
         }
 
 
