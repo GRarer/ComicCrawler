@@ -11,7 +11,7 @@ public class Main {
         System.out.println("Starting crawler");
 
             //URL url = new URL("http://egscomics.com/comic/2002-01-21");
-            URL url = new URL("https://xkcd.com/1/");
+            URL url = new URL("https://xkcd.com/2000/");
             //URL url = new URL("http://www.goodbyetohalos.com/comic/prologue-1");
             //URL url = new URL("https://questionablecontent.net/view.php?comic=2245");
 

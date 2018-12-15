@@ -16,8 +16,6 @@ public class ImageProcessor {
         this.destinationFolder = directory;
         this.counter = 0;
 
-        //TODO create directory if it doesnt already exist
-
         File folder = new File(destinationFolder);
         folder.mkdirs();
 
@@ -25,6 +23,10 @@ public class ImageProcessor {
 
     public ImageProcessor() {
         this(System.getProperty("user.home") + "/Desktop/Comic_Output/");
+    }
+
+    public String getDestinationFolder() {
+        return this.destinationFolder;
     }
 
 
@@ -44,6 +46,7 @@ public class ImageProcessor {
         FileOutputStream outputStream = new FileOutputStream(path);
         FileChannel writeChannel = outputStream.getChannel();
         writeChannel.transferFrom(readChannel,0,Long.MAX_VALUE);
+        writeChannel.close();
     }
 
 

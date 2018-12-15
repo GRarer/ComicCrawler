@@ -5,9 +5,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import java.util.*;
+
+import org.apache.commons.io.FileUtils;
 
 public class Crawler {
 
@@ -23,6 +28,9 @@ public class Crawler {
 
 
     public Crawler(URL startURL, String comicSubstring) {
+
+        //TODO find correct first page when startURL is a homepage
+
         this.startURL = startURL;
         this.comicSubstring = comicSubstring;
         this.imageProcessor = new ImageProcessor();
@@ -32,17 +40,73 @@ public class Crawler {
 
         URL nextURL = startURL;
 
+
+
         while (nextURL!=null) {
             nextURL = readPage(nextURL);
         }
 
+        /*
+         * Remove duplicate pages from end.
+         * The crawler visits the last page of some comics (e.g. XKCD) twice before it realizes it's in a loop.
+         */
+        try {
+            File folder = new File(imageProcessor.getDestinationFolder());
+
+            File[] fileArray = folder.listFiles();
+
+            if(fileArray.length>1) {
+
+                System.out.println("Testing for duplicates");
+
+                List<File> images = new ArrayList<>(Arrays.asList(fileArray));
+
+                /*
+                 * Sort files by number to find last and second last.
+                 * listFiles() doesn't give the correct order.
+                 * e.g. it lists 10.png before 9.png
+                 */
+                images.sort((f1, f2) -> {
+                    String name1 = f1.getName();
+                    name1 = name1.replaceAll("\\D+","");
+                    String name2 = f2.getName();
+                    name2 = name2.replaceAll("\\D+","");
+
+                    int i1 = Integer.parseInt(name1);
+                    int i2 = Integer.parseInt(name2);
+
+                    if (i1 == i2) {
+                        return f1.getName().compareTo(f2.getName());
+                    } else {
+                        return i1 - i2;
+                    }
+                });
+
+                File lastImage = images.get(images.size()-1);
+                File secondLastImage = images.get(images.size()-2);
+
+                if(FileUtils.contentEquals(lastImage, secondLastImage)) {
+
+                    if(!lastImage.delete()) {
+                        System.out.println();
+                        System.out.println("Failed to delete duplicate image.");
+                        System.out.println("Please check whether the last panel has been saved twice.");
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            System.out.println();
+            System.out.println("There was an exception when checking for duplicate panels.");
+            System.out.println("Please check whether the last panel has been saved twice.");
+        }
+
+
     }
 
+
     /**
-     *
-     * @param url the URL of the page
-     * @return the URL of the next page, or null if there is no next page
-     * @throws IOException
+     * @param url the url of the page (not the URL of the image)
+     * @return the URL of the next page, or null if the next page cannot be found
      */
     private URL readPage(URL url) {
         System.out.println(url.toString());
