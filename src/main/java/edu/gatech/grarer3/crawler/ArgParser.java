@@ -54,7 +54,7 @@ public class ArgParser {
             URL startURL = new URL(inputStartURL);
 
             ImageProcessor ip = new ImageProcessor(directory, prefix);
-            PageCrawler crawler = new PageCrawler(startURL, comicSubstring, ip);
+            Crawler crawler = new Crawler(startURL, comicSubstring, ip);
 
             crawler.readComic();
 
