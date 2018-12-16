@@ -52,9 +52,13 @@ public class ArgParser {
             URL startURL = new URL(inputStartURL);
 
             ImageProcessor ip = new ImageProcessor(directory, prefix);
-            Crawler crawler = new Crawler(startURL, comicSubstring, ip);
+            PageCrawler crawler = new PageCrawler(startURL, comicSubstring, ip);
 
-            crawler.startReading();
+            crawler.readComic();
+
+
+
+
 
         } catch (MalformedURLException ex) {
             System.out.println("Malformed start url: " + inputStartURL);
