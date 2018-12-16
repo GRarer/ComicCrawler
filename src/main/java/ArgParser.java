@@ -14,6 +14,9 @@ public class ArgParser {
     @Parameter(names = {"-d", "-directory", "-folder"}, description = "URL substring used to identify comic images")
     private String directory = System.getProperty("user.home") + "/Desktop/Comic_Output/";
 
+    @Parameter(names = {"-p", "-prefix"}, description = "Prefix to be included in file names")
+    private String prefix = "";
+
     public void run() {
 
 
@@ -47,8 +50,12 @@ public class ArgParser {
 
         try {
             URL startURL = new URL(inputStartURL);
-            Crawler crawler = new Crawler(startURL, comicSubstring, directory);
+
+            ImageProcessor ip = new ImageProcessor(directory, prefix);
+            Crawler crawler = new Crawler(startURL, comicSubstring, ip);
+
             crawler.startReading();
+
         } catch (MalformedURLException ex) {
             System.out.println("Malformed start url: " + inputStartURL);
             System.exit(0);

@@ -11,11 +11,18 @@ public class ImageProcessor {
 
     private int counter;
     private String destinationFolder;
+    private String fileNamePrefix;
 
 
-    public ImageProcessor(String directory) {
+    public ImageProcessor(String directory, String fileNamePrefix) {
         this.destinationFolder = directory;
         this.counter = 0;
+
+        if(fileNamePrefix.length()>0) {
+            fileNamePrefix = fileNamePrefix + " ";
+        }
+
+        this.fileNamePrefix = fileNamePrefix;
 
         File folder = new File(destinationFolder);
 
@@ -39,7 +46,7 @@ public class ImageProcessor {
 
         counter++;
 
-        String path = destinationFolder + Integer.toString(counter) + getFileExtension(imgURL);
+        String path = destinationFolder + fileNamePrefix + Integer.toString(counter) + getFileExtension(imgURL);
 
         URLConnection connection = imgURL.openConnection();
         connection.setRequestProperty("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36");

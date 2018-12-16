@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import java.util.*;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
@@ -26,10 +28,10 @@ public class Crawler {
     private ImageProcessor imageProcessor;
 
 
-    public Crawler(URL startURL, String comicSubstring, String directory) {
+    public Crawler(URL startURL, String comicSubstring, ImageProcessor ip) {
         this.startURL = startURL;
         this.comicSubstring = comicSubstring;
-        this.imageProcessor = new ImageProcessor(directory);
+        this.imageProcessor = ip;
     }
 
     /**
