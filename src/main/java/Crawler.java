@@ -21,10 +21,9 @@ public class Crawler {
         //TODO help text
         String[] help = {
                 "This is a utility for making offline archives of webcomics.",
-                "",
                 "Usage: Crawler <first_page_url> [-d <directory_name>] [-p <file_prefix>] [-s <comic_url_substring>]",
                 "",
-                "-d or -directory of -folder : the directory where images will be saved.",
+                "-d or -directory or -folder : the directory where images will be saved.",
                 "The default is <user_name>/Desktop/comics_output",
                 "",
                 "-p or -prefix : optional prefix for output file names",
@@ -32,7 +31,6 @@ public class Crawler {
                 "-s or -substring : the URL substring used to identify comic images.",
                 "The crawler looks for this substring to determine which element in the page is the comic image.",
                 "The default is '/comics/', which is used on most webcomic sites.",
-                "",
                 "",
                 "The offline archives created by this software are intended for personal and archival use only.",
                 "Please do not use this software to violate copyright laws."
