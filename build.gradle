@@ -2,8 +2,11 @@ plugins {
     id 'java'
 }
 
+
 group 'edu.gatech.grarer3'
 version '1.0-SNAPSHOT'
+
+
 
 sourceCompatibility = 1.8
 
@@ -19,4 +22,8 @@ dependencies {
 
 
 }
+
+
+
+
 version '1.0-SNAPSHOT'

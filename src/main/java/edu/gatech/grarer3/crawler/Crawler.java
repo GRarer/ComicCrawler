@@ -1,3 +1,6 @@
+package edu.gatech.grarer3.crawler;
+
+
 import com.beust.jcommander.JCommander;
 
 public class Crawler {
@@ -21,7 +24,7 @@ public class Crawler {
         //TODO help text
         String[] help = {
                 "This is a utility for making offline archives of webcomics.",
-                "Usage: Crawler <first_page_url> [-d <directory_name>] [-p <file_prefix>] [-s <comic_url_substring>]",
+                "Usage: java -jar crawler.jar <first_page_url> [-d <directory_name>] [-p <file_prefix>] [-s <comic_url_substring>]",
                 "",
                 "-d or -directory or -folder : the directory where images will be saved.",
                 "The default is <user_name>/Desktop/comics_output",

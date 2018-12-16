@@ -1,3 +1,5 @@
+package edu.gatech.grarer3.crawler;
+
 import com.beust.jcommander.Parameter;
 
 import java.net.MalformedURLException;
