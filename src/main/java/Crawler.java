@@ -6,6 +6,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,24 +26,25 @@ public class Crawler {
     private ImageProcessor imageProcessor;
 
 
-    public Crawler(URL startURL, String comicSubstring) {
+    public Crawler(URL startURL, String comicSubstring, String directory) {
         this.startURL = startURL;
         this.comicSubstring = comicSubstring;
-        this.imageProcessor = new ImageProcessor();
+        this.imageProcessor = new ImageProcessor(directory);
     }
 
+    /**
+     * Crawls from this crawler's start URL and saves images in sequence.
+     */
     public void startReading() {
 
         URL nextURL = startURL;
-
-
 
         while (nextURL!=null) {
             nextURL = readPage(nextURL);
         }
 
         /*
-         * Remove duplicate pages from end.
+         * Remove duplicate images from end.
          * The crawler visits the last page of some comics (e.g. XKCD) twice before it realizes it's in a loop.
          */
         try {
@@ -50,9 +52,12 @@ public class Crawler {
 
             File[] fileArray = folder.listFiles();
 
-            if(fileArray.length>1) {
+            if(fileArray==null) {
+                throw new FileNotFoundException();
+            }
 
-                System.out.println("Testing for duplicates");
+
+            if(fileArray.length>1) {
 
                 List<File> images = new ArrayList<>(Arrays.asList(fileArray));
 
@@ -83,19 +88,26 @@ public class Crawler {
                 if(FileUtils.contentEquals(lastImage, secondLastImage)) {
 
                     if(!lastImage.delete()) {
+                        System.out.println("\n");
+                        System.out.println("Finished.");
                         System.out.println();
                         System.out.println("Failed to delete duplicate image.");
-                        System.out.println("Please check whether the last panel has been saved twice.");
+                        System.out.println("Please manually check whether the last panel has been saved twice.");
+                    } else {
+                        System.out.println("Duplication error detected and correctly resolved.");
+                        System.out.println("\n");
+                        System.out.println("Finished.");
                     }
+                } else {
+                    System.out.println("\n\n");
+                    System.out.println("Finished.");
                 }
             }
         } catch (Exception ex) {
-            System.out.println();
-            System.out.println("There was an exception when checking for duplicate panels.");
-            System.out.println("Please check whether the last panel has been saved twice.");
+            System.out.println("\n");
+            System.out.println("There was an exception when finishing.");
+            System.out.println("The last panel may have been erroneously saved twice. Please check manually.");
         }
-
-
     }
 
 
@@ -104,6 +116,7 @@ public class Crawler {
      * @return the URL of the next page, or null if the next page cannot be found
      */
     private URL readPage(URL url) {
+
         System.out.println(url.toString());
 
         //get html document
@@ -115,13 +128,9 @@ public class Crawler {
             return null;
         }
 
-
-
         //find image
         Elements media = doc.select("[src]");
         String imageSrc = null;
-
-
 
         for (Element element : media) {
             if (element.attr("abs:src").contains(comicSubstring)) {
@@ -132,19 +141,19 @@ public class Crawler {
         }
 
         if (imageSrc==null) {
-            System.out.println("No valid comic found");
+            System.out.println("No valid comic found: " + url.toString());
         } else {
             try {
                 imageProcessor.saveImage(new URL(imageSrc));
             } catch (MalformedURLException ex) {
-                System.out.println("Malformed image URL. Skipping to next page.");
+                System.out.println("Malformed image URL: " + imageSrc + " on " + url.toString());
             } catch (IOException ex) {
                 System.out.println("Failed to write image to file. Skipping to next page.");
             }
         }
 
 
-        //find link to next page
+        //find link to next page using 'rel' attribute
         Elements links = doc.select("a[href]");
         String nextURLString = "";
 
@@ -154,8 +163,7 @@ public class Crawler {
                 break;
             }
         }
-
-        //alternate link-finding for sites that don't implement the 'rel' attribute
+        //for sites that don't implement the 'rel' attribute, look for links with 'next' in the link text
         if(nextURLString.equals("")) {
             for (Element link : links) {
                 String linkText = link.text();

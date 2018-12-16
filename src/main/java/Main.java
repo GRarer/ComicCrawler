@@ -1,24 +1,20 @@
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import com.beust.jcommander.JCommander;
 
 public class Main {
-    public static void main(String[] args) throws MalformedURLException {
-        System.out.println("Starting crawler");
+    public static void main(String[] args) {
 
-            //URL url = new URL("http://egscomics.com/comic/2002-01-21");
-            URL url = new URL("https://xkcd.com/2000/");
-            //URL url = new URL("http://www.goodbyetohalos.com/comic/prologue-1");
-            //URL url = new URL("https://questionablecontent.net/view.php?comic=2245");
+        if(args.length==0 || args[0].equals("help")) {
+            //TODO print help information
+            System.out.println("help info goes here");
+            System.exit(0);
+        }
 
-            String comicSubstring = "/comics/";
+        ArgParser parser = new ArgParser();
+        JCommander.newBuilder()
+                .addObject(parser)
+                .build()
+                .parse(args);
 
-            Crawler crawler = new Crawler(url, comicSubstring);
-            crawler.startReading();
-
+        parser.run();
     }
 }

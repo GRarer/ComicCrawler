@@ -9,18 +9,24 @@ import java.nio.channels.ReadableByteChannel;
 
 public class ImageProcessor {
 
-    private int counter = 0;
+    private int counter;
     private String destinationFolder;
+
 
     public ImageProcessor(String directory) {
         this.destinationFolder = directory;
         this.counter = 0;
 
-        new File(destinationFolder).mkdirs();
-    }
+        File folder = new File(destinationFolder);
 
-    public ImageProcessor() {
-        this(System.getProperty("user.home") + "/Desktop/Comic_Output/");
+        if (!(folder.mkdirs())) {
+            if(folder.listFiles()!=null && folder.listFiles().length!=0) {
+                System.out.println();
+                System.out.println(destinationFolder +" already contains files.");
+                System.out.println("Please move those files or select a different directory, then try again. ");
+                System.exit(0);
+            }
+        }
     }
 
     public String getDestinationFolder() {
@@ -30,8 +36,6 @@ public class ImageProcessor {
 
 
     public  void saveImage(URL imgURL) throws IOException {
-
-        System.out.println("Saving image from: " + imgURL.toString());
 
         counter++;
 
