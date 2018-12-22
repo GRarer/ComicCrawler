@@ -13,6 +13,11 @@ public class ArgParser {
     @Parameter(names = {"-s", "-substring"}, description = "URL substring used to identify comic images")
     private String comicSubstring = "/comics/";
 
+    @Parameter(names = {"-a", "-alt"}, description = "Look for images with the specified substring in their alt-text rather than in their URL")
+    private Boolean useAltText = false;
+
+
+
     @Parameter(names = {"-d", "-directory", "-folder"}, description = "URL substring used to identify comic images")
     private String directory = System.getProperty("user.home") + "/Desktop/Comic_Output/";
 
@@ -47,25 +52,20 @@ public class ArgParser {
         System.out.println("Starting from url: " + inputStartURL);
         System.out.println("Using comic url substring: " + comicSubstring);
         System.out.println("Outputting to: " + directory);
+        System.out.println(useAltText ? "Identifying images using alt-text substring" : "Identifying images using URL substring");
         System.out.println();
-
 
         try {
             URL startURL = new URL(inputStartURL);
 
             ImageProcessor ip = new ImageProcessor(directory, prefix);
-            Crawler crawler = new Crawler(startURL, comicSubstring, ip);
+            Crawler crawler = new Crawler(startURL, comicSubstring, useAltText, ip);
 
             crawler.readComic();
-
-
-
-
 
         } catch (MalformedURLException ex) {
             System.out.println("Malformed start url: " + inputStartURL);
             System.exit(0);
         }
-
     }
 }

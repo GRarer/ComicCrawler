@@ -8,6 +8,7 @@ import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Objects;
 
 public class ImageProcessor {
 
@@ -16,6 +17,7 @@ public class ImageProcessor {
     private String fileNamePrefix;
 
 
+    //TODO better naming for multiple images from same page
     public ImageProcessor(String directory, String fileNamePrefix) {
         this.destinationFolder = directory;
         this.counter = 0;
@@ -29,7 +31,7 @@ public class ImageProcessor {
         File folder = new File(destinationFolder);
 
         if (!(folder.mkdirs())) {
-            if(folder.listFiles()!=null && folder.listFiles().length!=0) {
+            if(Objects.requireNonNull(folder.listFiles()).length != 0) {
                 System.out.println();
                 System.out.println(destinationFolder +" already contains files.");
                 System.out.println("Please move those files or select a different directory, then try again. ");

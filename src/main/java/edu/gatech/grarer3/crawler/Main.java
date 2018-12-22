@@ -21,7 +21,6 @@ public class Main {
     }
 
     static void printHelpText() {
-        //TODO help text
         String[] help = {
                 "This is a utility for making offline archives of webcomics.",
                 "Usage: java -jar crawler.jar <first_page_url> [-d <directory_name>] [-p <file_prefix>] [-s <comic_url_substring>]",
@@ -31,9 +30,12 @@ public class Main {
                 "",
                 "-p or -prefix : optional prefix for output file names",
                 "",
-                "-s or -substring : the URL substring used to identify comic images.",
+                "-s or -substring : the substring used to identify comic images.",
                 "The crawler looks for this substring to determine which element in the page is the comic image.",
-                "The default is '/comics/', which is used on most webcomic sites.",
+                "The default is '/comics/', which is used in the comic image URLs on most webcomic sites.",
+                "",
+                "-a or -alt : Identify comic images by looking for the comic substring in the image alt-text.",
+                "The default is False (look for substring in the image's URL rather than the Alt-text).",
                 "",
                 "The offline archives created by this software are intended for personal and archival use only.",
                 "Please do not use this software to violate copyright laws."

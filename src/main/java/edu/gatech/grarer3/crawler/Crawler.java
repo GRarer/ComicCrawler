@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
+
 public class Crawler {
 
     private static final int timeoutMillis = 10000; //timeout when fetching html
@@ -24,14 +25,18 @@ public class Crawler {
     //url substring used to identify which image is the comic, usually "/comics/"
     private String comicSubstring;
 
+    private boolean useAltTextSubstring;
+
     private ImageProcessor imageProcessor;
+
 
     List<String> eventLog;
 
 
-    public Crawler(URL startURL, String comicSubstring, ImageProcessor ip) {
+    public Crawler(URL startURL, String comicSubstring, boolean useAltTextSubstring, ImageProcessor ip) {
         this.startURL = startURL;
         this.comicSubstring = comicSubstring;
+        this.useAltTextSubstring = useAltTextSubstring;
         this.imageProcessor = ip;
         this.eventLog = new ArrayList<>();
     }
@@ -110,24 +115,23 @@ public class Crawler {
                 }
             }
         } catch (Exception ex) {
-            System.out.println("\n");
-            System.out.println("There was an exception when finishing.");
-            System.out.println("The last panel may have been erroneously saved twice. Please check manually.");
+            eventLog.add("The last panel may have been erroneously saved twice. Please check manually.");
+        }
+
+        if(eventLog.size()>0) {
+            System.out.println("\n\n\nEvent Log: ");
+
+
+            for(String event : eventLog) {
+                System.out.println();
+                System.out.println(event);
+
+            }
+        } else {
+            System.out.println("No exceptions to report.");
         }
 
 
-        System.out.println("\nPress 'Enter' to print event log");
-        try {
-            System.in.read();
-        } catch (IOException ex) {
-            //do nothing
-        }
-        System.out.println();
-        for(String event : eventLog) {
-            System.out.println();
-            System.out.println(event);
-
-        }
 
     }
 
@@ -145,6 +149,7 @@ public class Crawler {
         try {
             doc = Jsoup.parse(url, timeoutMillis);
         } catch (IOException ex) {
+            //try again
             try {
                 System.out.println("Page Not Found: " + url.toString());
                 System.out.println("Trying to load page again");
@@ -156,36 +161,65 @@ public class Crawler {
             }
         }
 
-        //find image
-        Elements media = doc.select("[src]");
-        String imageSrc = null;
 
-        for (Element element : media) {
-            if (element.attr("abs:src").contains(comicSubstring)) {
-                imageSrc = element.attr("abs:src");
+        List<URL> comicImageURLs = findComicImageURLs(doc);
 
-                break;
-            }
-        }
-
-        if (imageSrc==null) {
+        if (comicImageURLs.isEmpty()) {
             System.out.println("No valid comic found");
             eventLog.add("No valid comic found on " + url.toString());
         } else {
-            try {
-                imageProcessor.saveImage(new URL(imageSrc));
-            } catch (MalformedURLException ex) {
-                System.out.println("Malformed image URL: " + imageSrc);
-                eventLog.add("Malformed image URL: " + imageSrc + " on " + url.toString());
-            } catch (IOException ex) {
-                System.out.println("Failed to write image to file. Skipping to next page.");
-                eventLog.add(imageSrc + " from " + url.toString() + " failed to write to file");
+            for (URL imgURL : comicImageURLs) {
+                try {
+                    imageProcessor.saveImage(imgURL);
+                } catch (IOException e) {
+                    System.out.println("Failed to write image to file. Skipping to next page.");
+                    eventLog.add(imgURL.toString() + " from " + url.toString() + " failed to write to file");
+                }
             }
         }
 
+        return findNextLink(doc, url);
+    }
+
+
+    private List<URL> findComicImageURLs(Document document) {
+
+        List<URL> imgURLs = new ArrayList<>();
+
+        Elements media = document.select("[src]");
+
+
+        if (useAltTextSubstring) {
+            //look for images with the substring in their alt-text
+            for (Element element : media) {
+                if (element.attr("abs:alt").contains(comicSubstring)) {
+                    try {
+                        imgURLs.add(new URL(element.attr("abs:src")));
+                    } catch (MalformedURLException e) {
+                        eventLog.add("Malformed image url: " + element.attr("abs:src"));
+                    }
+                }
+            }
+        } else {
+            //look for images with the substring in their URL
+            for (Element element : media) {
+                if (element.attr("abs:src").contains(comicSubstring)) {
+                    try {
+                        imgURLs.add(new URL(element.attr("abs:src")));
+                    } catch (MalformedURLException e) {
+                        eventLog.add("Malformed image url: " + element.attr("abs:src"));
+                    }
+                }
+            }
+        }
+
+        return imgURLs;
+    }
+
+    private URL findNextLink(Document document, URL docURL) {
 
         //find link to next page using 'rel' attribute
-        Elements links = doc.select("a[href]");
+        Elements links = document.select("a[href]");
         String nextURLString = "";
 
         for (Element link : links) {
@@ -194,6 +228,7 @@ public class Crawler {
                 break;
             }
         }
+
         //for sites that don't implement the 'rel' attribute, look for links with 'next' in the link text
         if(nextURLString.equals("")) {
             for (Element link : links) {
@@ -206,23 +241,23 @@ public class Crawler {
         }
 
         if (nextURLString.equals("")) {
-            System.out.println("No 'next' link found. Exiting crawler loop.");
+            System.out.println("No 'next' link found.");
             return null;
         }
 
         try {
             URL nextURL = new URL(nextURLString);
 
-            if (nextURL.equals(url)) {
-                System.out.println("Next link leads back to the same page. Exiting crawler loop.");
+            //check for getting stuck in a loop
+            if (nextURL.equals(docURL)) {
+                System.out.println("Next link leads back to the same page.");
                 return null;
             }
 
             return nextURL;
         } catch (MalformedURLException e) {
-            System.out.println("Malformed 'next' link URL. Exiting crawler loop.");
+            System.out.println("Malformed 'next' link URL.");
             return null;
         }
     }
-
 }
