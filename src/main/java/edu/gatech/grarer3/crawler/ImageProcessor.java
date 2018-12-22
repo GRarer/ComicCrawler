@@ -13,11 +13,10 @@ import java.util.Objects;
 public class ImageProcessor {
 
     private int counter;
+
     private String destinationFolder;
     private String fileNamePrefix;
 
-
-    //TODO better naming for multiple images from same page
     public ImageProcessor(String directory, String fileNamePrefix) {
         this.destinationFolder = directory;
         this.counter = 0;
