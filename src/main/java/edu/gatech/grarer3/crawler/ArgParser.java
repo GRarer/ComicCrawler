@@ -16,8 +16,6 @@ public class ArgParser {
     @Parameter(names = {"-a", "-alt"}, description = "Look for images with the specified substring in their alt-text rather than in their URL")
     private Boolean useAltText = false;
 
-
-
     @Parameter(names = {"-d", "-directory", "-folder"}, description = "URL substring used to identify comic images")
     private String directory = System.getProperty("user.home") + "/Desktop/Comic_Output/";
 

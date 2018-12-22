@@ -23,7 +23,7 @@ public class Main {
     static void printHelpText() {
         String[] help = {
                 "This is a utility for making offline archives of webcomics.",
-                "Usage: java -jar crawler.jar <first_page_url> [-d <directory_name>] [-p <file_prefix>] [-s <comic_url_substring>]",
+                "Usage: java -jar crawler.jar <first_page_url> [-d <directory_name>] [-p <file_prefix>] [-s <comic_url_substring>] [-a]",
                 "",
                 "-d or -directory or -folder : the directory where images will be saved.",
                 "The default is <user_name>/Desktop/comics_output",
