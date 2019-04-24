@@ -4,7 +4,7 @@ Comic Crawler is a utility for making offline archives of webcomics. It download
 # Usage
 Download crawler.jar and run it from the command line.
 
-Usage: java -jar crawler.jar <first_page_url> [-d <directory_name>] [-p <file_prefix>] [-s <comic_url_substring>] [-a]
+Usage: java -jar crawler.jar <first_page_url> [-d <directory_name>] [-p <file_prefix>] [-s <comic_url_substring>] [-a] [-n <number>]
 
 At minimum, you must specify the first page of the comic.
 ```sh
@@ -30,6 +30,9 @@ The default is '/comics/', which is used in the comic image URLs on most webcomi
 
 -a or -alt : Identify comic images by looking for the comic substring in the image alt-text.
 The default is False (look for substring in the image's URL rather than the Alt-text).
+
+-n or -number: The filenames for each image count up from this number.
+The default is 1. You can use a different value if you are downloading new images to be added to an existing archive.
 
 # What's this about substrings?
 Comic webpages often contain many images that are not part of the comic's content (logos, headers, etc). Comic Crawler needs to know how to identify which images are part of the comic. By default, it looks for the images whose URLs include the substring "/comics/". For sites that use some other format, use the -substring option to change this filter. For sites that don't use a specific URL substring for their comic images, use the -alt flag to instead filter for images that contain a specific substring in their alt-text.
