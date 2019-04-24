@@ -12,10 +12,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import java.util.*;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-
 
 public class Crawler {
 
@@ -47,6 +45,9 @@ public class Crawler {
      * Crawls from this crawler's start URL and saves images in sequence.
      */
     public void readComic() {
+
+        //store exceptions created during setup
+        this.eventLog.addAll(imageProcessor.setupExceptionLog);
 
         URL nextURL = startURL;
 
@@ -93,6 +94,7 @@ public class Crawler {
                     }
                 });
 
+                //compare last and second-to-last images
                 File lastImage = images.get(images.size()-1);
                 File secondLastImage = images.get(images.size()-2);
 
@@ -118,6 +120,7 @@ public class Crawler {
             eventLog.add("The last panel may have been erroneously saved twice. Please check manually.");
         }
 
+        //print log of exceptions
         if(eventLog.size()>0) {
             System.out.println("\n\n\nEvent Log: ");
 
@@ -130,9 +133,6 @@ public class Crawler {
         } else {
             System.out.println("No exceptions to report.");
         }
-
-
-
     }
 
 
@@ -184,8 +184,8 @@ public class Crawler {
 
     private List<URL> findComicImageURLs(Document document) {
 
+        //get images
         List<URL> imgURLs = new ArrayList<>();
-
         Elements media = document.select("[src]");
 
 

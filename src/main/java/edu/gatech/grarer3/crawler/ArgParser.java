@@ -22,6 +22,9 @@ public class ArgParser {
     @Parameter(names = {"-p", "-prefix"}, description = "Prefix to be included in file names")
     private String prefix = "";
 
+    @Parameter(names = {"-n", "-number"}, description = "Number from which to start numbering file names")
+    private Integer number = 1;
+
     public void run() {
 
 
@@ -40,9 +43,15 @@ public class ArgParser {
 
         //add slash to directory
         String slash = "\\";
-
         if (!directory.substring(directory.length()-1, directory.length()).equals(slash) && !directory.substring(directory.length()-1, directory.length()).equals("/")) {
             directory = directory + slash;
+        }
+
+        //verify that starting number is not negative (because i'm not sure how that would interact with file system alphabetization)
+        int n = number;
+        if (n < 0) {
+            System.out.println("Initial file number cannot be negative.");
+            System.exit(0);
         }
 
 
@@ -50,13 +59,16 @@ public class ArgParser {
         System.out.println("Starting from url: " + inputStartURL);
         System.out.println("Using comic url substring: " + comicSubstring);
         System.out.println("Outputting to: " + directory);
+        if (n != 0) {
+            System.out.println("Numbering output starting from " + n);
+        }
         System.out.println(useAltText ? "Identifying images using alt-text substring" : "Identifying images using URL substring");
         System.out.println();
 
         try {
             URL startURL = new URL(inputStartURL);
 
-            ImageProcessor ip = new ImageProcessor(directory, prefix);
+            ImageProcessor ip = new ImageProcessor(directory, prefix, n);
             Crawler crawler = new Crawler(startURL, comicSubstring, useAltText, ip);
 
             crawler.readComic();
